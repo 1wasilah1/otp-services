@@ -1,15 +1,27 @@
 import makeWASocket, { DisconnectReason, useMultiFileAuthState } from '@whiskeysockets/baileys';
 import { Boom } from '@hapi/boom';
 import qrcode from 'qrcode-terminal';
+import { unlink, readdir } from 'fs/promises';
+import { join } from 'path';
 
 let sock: any = null;
 let isConnected = false;
+const authPath = '/app/auth_info_baileys';
+
+const clearAuthFolder = async () => {
+  try {
+    const files = await readdir(authPath);
+    await Promise.all(files.map(file => unlink(join(authPath, file))));
+    console.log('🗑️ Auth folder cleared');
+  } catch (error) {
+    console.log('⚠️ Auth folder already empty');
+  }
+};
 
 export const initializeWhatsApp = async () => {
   try {
     console.log('🔄 Initializing WhatsApp...');
     
-    const authPath = '/app/auth_info_baileys';
     const { state, saveCreds } = await useMultiFileAuthState(authPath);
     
     sock = makeWASocket({
@@ -37,10 +49,11 @@ export const initializeWhatsApp = async () => {
         console.log('❌ WhatsApp disconnected:', statusCode);
         
         if (statusCode === 401 || statusCode === 515) {
-          // Clear auth and reconnect to get new QR
           console.log('🔄 Clearing auth and generating new QR...');
           sock = null;
-          setTimeout(() => initializeWhatsApp(), 3000);
+          clearAuthFolder().then(() => {
+            setTimeout(() => initializeWhatsApp(), 3000);
+          });
         } else if (shouldReconnect) {
           console.log('🔄 Reconnecting in 5s...');
           sock = null;
