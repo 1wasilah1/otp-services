@@ -22,16 +22,10 @@ jobs:
           docker push wasilahhadi/otp-services:latest
       
       - name: Deploy to K3s
-        uses: appleboy/ssh-action@master
-        with:
-          host: ${{ secrets.VPS_HOST }}
-          username: ${{ secrets.VPS_USER }}
-          key: ${{ secrets.VPS_SSH_KEY }}
-          script: |
-            kubectl apply -f - <<EOF
-            $(cat <<'YAML'
-            ${{ secrets.K8S_DEPLOYMENT }}
-            YAML
-            )
-            EOF
-            kubectl rollout restart deployment/otp-services -n fuel-friend
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 -d > ~/.kube/config
+          kubectl apply -f - <<EOF
+          ${{ secrets.K8S_DEPLOYMENT }}
+          EOF
+          kubectl rollout restart deployment/otp-services -n fuel-friend
