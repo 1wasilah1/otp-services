@@ -85,10 +85,14 @@ export const sendWhatsAppOTP = async (phoneNumber: string, otp: string): Promise
     }
 
     let formattedNumber = phoneNumber.replace(/\D/g, '');
-    if (formattedNumber.startsWith('0')) {
-      formattedNumber = '62' + formattedNumber.substring(1);
-    } else if (!formattedNumber.startsWith('62')) {
-      formattedNumber = '62' + formattedNumber;
+    
+    // Add country code if not present (starts with +)
+    if (!phoneNumber.startsWith('+')) {
+      // If starts with 0, assume Indonesia
+      if (formattedNumber.startsWith('0')) {
+        formattedNumber = '62' + formattedNumber.substring(1);
+      }
+      // If no country code and doesn't start with 0, assume already has country code
     }
     
     const jid = `${formattedNumber}@s.whatsapp.net`;
