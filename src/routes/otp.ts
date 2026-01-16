@@ -38,7 +38,14 @@ router.post('/whatsapp/send', async (req, res) => {
   }
 
   const otpCode = otp || generateOTP();
-  saveOTP(phoneNumber, otpCode);
+  
+  // Normalize phone number before saving
+  let normalizedNumber = phoneNumber.replace(/[^\d+]/g, '').replace('+', '');
+  if (normalizedNumber.startsWith('0')) {
+    normalizedNumber = '62' + normalizedNumber.substring(1);
+  }
+  
+  saveOTP(normalizedNumber, otpCode);
 
   const result = await sendWhatsAppOTP(phoneNumber, otpCode);
   res.status(result.success ? 200 : 500).json(result);
@@ -51,7 +58,13 @@ router.post('/whatsapp/verify', async (req, res) => {
     return res.status(400).json({ success: false, error: 'Phone number and OTP required' });
   }
 
-  const result = verifyOTP(phoneNumber, otp);
+  // Normalize phone number before verifying
+  let normalizedNumber = phoneNumber.replace(/[^\d+]/g, '').replace('+', '');
+  if (normalizedNumber.startsWith('0')) {
+    normalizedNumber = '62' + normalizedNumber.substring(1);
+  }
+
+  const result = verifyOTP(normalizedNumber, otp);
   res.status(result.success ? 200 : 400).json(result);
 });
 
