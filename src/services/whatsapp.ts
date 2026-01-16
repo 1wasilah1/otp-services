@@ -28,9 +28,11 @@ export const initializeWhatsApp = async () => {
       auth: state,
       printQRInTerminal: false,
       browser: ['OTP Service', 'Chrome', '1.0.0'],
+      syncFullHistory: false,
+      markOnlineOnConnect: false,
       logger: {
-        level: 'error',
-        child: () => ({ level: 'error', trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {} }),
+        level: 'silent',
+        child: () => ({ level: 'silent', trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {} }),
         trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {}
       }
     });
