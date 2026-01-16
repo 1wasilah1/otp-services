@@ -36,7 +36,12 @@ export const initializeWhatsApp = async () => {
         isConnected = false;
         console.log('❌ WhatsApp disconnected:', statusCode);
         
-        if (shouldReconnect) {
+        if (statusCode === 401 || statusCode === 515) {
+          // Clear auth and reconnect to get new QR
+          console.log('🔄 Clearing auth and generating new QR...');
+          sock = null;
+          setTimeout(() => initializeWhatsApp(), 3000);
+        } else if (shouldReconnect) {
           console.log('🔄 Reconnecting in 5s...');
           sock = null;
           setTimeout(() => initializeWhatsApp(), 5000);
