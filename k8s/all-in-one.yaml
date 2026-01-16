@@ -1,0 +1,66 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: otp-whatsapp-pvc
+  namespace: fuel-friend
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: local-path
+  resources:
+    requests:
+      storage: 100Mi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: otp-services
+  namespace: fuel-friend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: otp-services
+  template:
+    metadata:
+      labels:
+        app: otp-services
+    spec:
+      containers:
+      - name: otp-services
+        image: ghcr.io/1wasilah1/otp-services:latest
+        ports:
+        - containerPort: 3000
+        env:
+        - name: PORT
+          value: "3000"
+        - name: SENDGRID_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: otp-secrets
+              key: sendgrid-api-key
+        - name: SENDGRID_FROM_EMAIL
+          valueFrom:
+            secretKeyRef:
+              name: otp-secrets
+              key: sendgrid-from-email
+        volumeMounts:
+        - name: whatsapp-auth
+          mountPath: /app/auth_info_baileys
+      volumes:
+      - name: whatsapp-auth
+        persistentVolumeClaim:
+          claimName: otp-whatsapp-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: otp-services
+  namespace: fuel-friend
+spec:
+  selector:
+    app: otp-services
+  ports:
+  - port: 3000
+    targetPort: 3000
+  type: ClusterIP
