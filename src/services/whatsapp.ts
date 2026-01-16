@@ -84,19 +84,22 @@ export const sendWhatsAppOTP = async (phoneNumber: string, otp: string): Promise
       return { success: false, error: 'WhatsApp not connected' };
     }
 
-    let formattedNumber = phoneNumber.replace(/\D/g, '');
+    // Remove all non-digit characters except +
+    let formattedNumber = phoneNumber.replace(/[^\d+]/g, '');
     
-    // Add country code if not present (starts with +)
-    if (!phoneNumber.startsWith('+')) {
-      // If starts with 0, assume Indonesia
-      if (formattedNumber.startsWith('0')) {
-        formattedNumber = '62' + formattedNumber.substring(1);
-      }
-      // If no country code and doesn't start with 0, assume already has country code
+    // Remove + if present, we only need digits
+    formattedNumber = formattedNumber.replace('+', '');
+    
+    // If starts with 0, assume Indonesia and replace with 62
+    if (formattedNumber.startsWith('0')) {
+      formattedNumber = '62' + formattedNumber.substring(1);
     }
     
+    // If number is less than 10 digits, likely missing country code
+    // This is a fallback, ideally frontend should always send with country code
+    
     const jid = `${formattedNumber}@s.whatsapp.net`;
-    const message = `Your verification code is: ${otp}\n\nExpires in 10 minutes.`;
+    const message = `Your verification code is: ${otp}\n\nThis code expires in 10 minutes. Do not share this code with anyone.`;
 
     await sock.sendMessage(jid, { text: message });
     console.log('✅ OTP sent to:', formattedNumber);
