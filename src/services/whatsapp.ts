@@ -48,7 +48,7 @@ export const initializeWhatsApp = async () => {
         isConnected = false;
         console.log('❌ WhatsApp disconnected:', statusCode);
         
-        if (statusCode === 401 || statusCode === 515) {
+        if (statusCode === 401) {
           console.log('🔄 Clearing auth and generating new QR...');
           sock = null;
           clearAuthFolder().then(() => {
