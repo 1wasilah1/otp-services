@@ -15,7 +15,7 @@ spec:
     spec:
       containers:
       - name: otp-services
-        image: ghcr.io/1wasilah1/otp-services:latest
+        image: wasilahhadi/otp-services:latest
         ports:
         - containerPort: 3000
         env:
