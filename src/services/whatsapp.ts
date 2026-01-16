@@ -26,6 +26,8 @@ export const initializeWhatsApp = async () => {
     
     sock = makeWASocket({
       auth: state,
+      printQRInTerminal: false,
+      browser: ['OTP Service', 'Chrome', '1.0.0'],
       logger: {
         level: 'error',
         child: () => ({ level: 'error', trace: () => {}, debug: () => {}, info: () => {}, warn: () => {}, error: () => {}, fatal: () => {} }),
